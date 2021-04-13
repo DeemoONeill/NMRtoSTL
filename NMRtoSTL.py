@@ -10,7 +10,6 @@ from stl import mesh
 
 
 class Bruker2D:
-
     ROWS_RE = re.compile(r"NROWS = (\d+)")
     COLS_RE = re.compile(r"NCOLS = (\d+)")
     XY_RE = re.compile(r"F[12][\w]{4,5} = ([-\d.]+)")
@@ -19,7 +18,7 @@ class Bruker2D:
         self.filename = filename
 
     def _get_consts(self, file: FileIO):
-        # read the head of the file to find the number of rows, columns and 
+        # read the head of the file to find the number of rows, columns and
         # the limits of the X and Y axes
         header = file.read(600)
         file.seek(0)
@@ -28,11 +27,11 @@ class Bruker2D:
         self.NCOLS = int(re.findall(self.COLS_RE, header)[0])
         #find axis limits
         self.xmax, self.xmin, self.ymax, self.ymin = [float(value) for value in re.findall(self.XY_RE, header)]
-        
+
     def read_file(self, verbose = False):
         if verbose:
             print("Reading Data")
-        # reads data and constants from the text file 
+        # reads data and constants from the text file
         self.data = []
         with open(self.filename, "r") as f:
             self._get_consts(f)
@@ -43,25 +42,23 @@ class Bruker2D:
                     row = [float(line)] + [float(f.readline().strip()) for _ in range(self.NCOLS-1)]
                     self.data.append(row)
         self.data = np.array(self.data)
-        print("Shape", self.data.shape)
-        print("NCOLS, NROWS", self.NCOLS, self.NROWS)
-        
-    def process(self):
+
+    def process(self, max_height=1):
         x = np.linspace(self.xmax, self.xmin, num=self.NCOLS)
         y = np.linspace(self.ymax, self.ymin, num=self.NROWS)
 
-        arr = self.data
         # expands x and y to the same s
-        X, Y = np.meshgrid(x, y)  
-        z = arr.flatten()
+        x, y = np.meshgrid(x, y)
+        z = self.data.flatten()
         # normalise z data
-        z = (z/z.max()) * 1
-        x = X.flatten()
-        y = Y.flatten()
+        z = (z/z.max()) * max_height
+        x = x.flatten()
+        y = y.flatten()
         return x,y,z
 
-def create_mesh(x:np.ndarray, y:np.ndarray, z:np.ndarray) -> mesh.Mesh:
-    print("performing Triangulation")
+def create_mesh(x:np.ndarray, y:np.ndarray, z:np.ndarray, verbose = False) -> mesh.Mesh:
+    if verbose:
+        print("Triangulating")
     tri=triang.Triangulation(y,x)
     data = np.zeros(len(tri.triangles), dtype=mesh.Mesh.dtype)
     print("Constructing Mesh")
@@ -72,16 +69,16 @@ def create_mesh(x:np.ndarray, y:np.ndarray, z:np.ndarray) -> mesh.Mesh:
     return NMR_mesh
 
 def main(filename):
-    
     spectrum = Bruker2D(filename)
     spectrum.read_file(verbose=True)
     x,y,z = spectrum.process()
-    NMR_mesh = create_mesh(x, y, z)
+
+    NMR_mesh = create_mesh(x, y, z, verbose = True)
     _, file = os.path.split(filename)
     file, _ = os.path.splitext(file)
-    NMR_mesh.save(f'./{file}.stl')
-
-    
+    filename = f'./{file}.stl'
+    print(f"Saving file as: '{filename[2:]}'")
+    NMR_mesh.save(filename)
 
 if __name__ == "__main__":
     import sys
