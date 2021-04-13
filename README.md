@@ -14,4 +14,4 @@ Then run `python NMRtoSTL.py <yourOutputTextFile>` from your command line and it
 - [ ] read from generic files
 
 # Known issues
-Makes a mess of spectra that have been zoomed in. 
+~~Makes a mess of spectra that have been zoomed in.~~ Fixed
