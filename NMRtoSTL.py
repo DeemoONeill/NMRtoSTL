@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as triang
 import numpy as np
 import re
+from process_generic import Generic
 from stl import mesh
 
 
@@ -59,17 +60,17 @@ class Bruker2D:
 def create_mesh(x:np.ndarray, y:np.ndarray, z:np.ndarray, verbose = False) -> mesh.Mesh:
     if verbose:
         print("Triangulating")
-    tri=triang.Triangulation(y,x)
+    tri=triang.Triangulation(y,x,)
     data = np.zeros(len(tri.triangles), dtype=mesh.Mesh.dtype)
     print("Constructing Mesh")
     NMR_mesh = mesh.Mesh(data, remove_empty_areas=False)
     NMR_mesh.x = x[tri.triangles]
-    NMR_mesh.y[:] = y[tri.triangles]
-    NMR_mesh.z[:] = z[tri.triangles]
+    NMR_mesh.y = y[tri.triangles]
+    NMR_mesh.z = z[tri.triangles]
     return NMR_mesh
 
-def main(filename):
-    spectrum = Bruker2D(filename)
+def main(filename, reader):
+    spectrum = reader(filename)
     spectrum.read_file(verbose=True)
     x,y,z = spectrum.process()
 
@@ -79,11 +80,17 @@ def main(filename):
     filename = f'./{file}.stl'
     print(f"Saving file as: '{filename[2:]}'")
     NMR_mesh.save(filename)
-
+#%%
 if __name__ == "__main__":
     import sys
     try:
         filename = sys.argv[1]
     except:
         filename = "../NMR2.txt"
-    main(filename)
+    if "--generic" in sys.argv:
+        reader = Generic
+    else:
+        reader = Bruker2D
+
+    main(filename, reader=reader)
+# %%
