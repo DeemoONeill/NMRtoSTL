@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as triang
 import numpy as np
 import re
+from process_generic import Generic
 from stl import mesh
 import nmrglue as ng
 
@@ -119,17 +120,22 @@ class importNMR:
 def create_mesh(x:np.ndarray, y:np.ndarray, z:np.ndarray, verbose = False) -> mesh.Mesh:
     if verbose:
         print("Triangulating")
-    tri=triang.Triangulation(y,x)
+    tri=triang.Triangulation(y,x,)
     data = np.zeros(len(tri.triangles), dtype=mesh.Mesh.dtype)
     print("Constructing Mesh")
     NMR_mesh = mesh.Mesh(data, remove_empty_areas=False)
     NMR_mesh.x = x[tri.triangles]
-    NMR_mesh.y[:] = y[tri.triangles]
-    NMR_mesh.z[:] = z[tri.triangles]
+    NMR_mesh.y = y[tri.triangles]
+    NMR_mesh.z = z[tri.triangles]
     return NMR_mesh
 
+<<<<<<< HEAD
 def main(filename):
     spectrum = importNMR(filename)
+=======
+def main(filename, reader):
+    spectrum = reader(filename)
+>>>>>>> 623cfb82cb9119b89d386d932e49373c7d5cc592
     spectrum.read_file(verbose=True)
     x,y,z = spectrum.process()
     NMR_mesh = create_mesh(x, y, z, verbose = True)
@@ -138,11 +144,26 @@ def main(filename):
     filename = f'./{file}.stl'
     print(f"Saving file as: '{filename[2:]}'")
     NMR_mesh.save(filename)
+<<<<<<< HEAD
     
+=======
+#%%
+>>>>>>> 623cfb82cb9119b89d386d932e49373c7d5cc592
 if __name__ == "__main__":
     import sys
     try:
         filename = sys.argv[1]
     except:
+<<<<<<< HEAD
         filename = r"Example_data\Bruker_COSY\pdata\1"
     main(filename)
+=======
+        filename = "../NMR2.txt"
+    if "--generic" in sys.argv:
+        reader = Generic
+    else:
+        reader = Bruker2D
+
+    main(filename, reader=reader)
+# %%
+>>>>>>> 623cfb82cb9119b89d386d932e49373c7d5cc592

@@ -1,2 +1,6 @@
 *.stl
+*.txt
+*.csv
+!requirements.txt
 .vscode/
+__pycache__/
