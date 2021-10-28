@@ -93,6 +93,64 @@ def create_mesh(
     return NMR_mesh
 
 
+def create_base(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
+    thickness=1,
+):
+    """
+    Creates a base for the 3d model, uses code from the numpy-STL documentation
+    to create the base:
+    https://numpy-stl.readthedocs.io/en/latest/usage.html#creating-mesh-objects-from-a-list-of-vertices-and-faces
+    """
+    xmin, xmax = x.min(), x.max()
+    ymin, ymax = y.min(), y.max()
+    zmin = z.min()
+
+    # Create the vertices matrix for the base
+    # the min and max of the x and y make the base as long and wide as the data
+    # the zmin starts the base at the lowest point in the data and makes it
+    # as thick as the thickness.
+    vertices = np.array(
+        [
+            [xmin, ymin, zmin - thickness],
+            [xmax, ymin, zmin - thickness],
+            [xmax, ymax, zmin - thickness],
+            [xmin, ymax, zmin - thickness],
+            [xmin, ymin, zmin],
+            [xmax, ymin, zmin],
+            [xmax, ymax, zmin],
+            [xmin, ymax, zmin],
+        ]
+    )
+    # Define the 12 triangles composing the cube
+    faces = np.array(
+        [
+            [0, 3, 1],
+            [1, 3, 2],
+            [0, 4, 7],
+            [0, 7, 3],
+            [4, 5, 6],
+            [4, 6, 7],
+            [5, 1, 2],
+            [5, 2, 6],
+            [2, 3, 6],
+            [3, 7, 6],
+            [0, 1, 5],
+            [0, 5, 4],
+        ]
+    )
+
+    # Create the mesh
+    base = mesh.Mesh(np.zeros(faces.shape[0], dtype=mesh.Mesh.dtype))
+    for i, f in enumerate(faces):
+        for j in range(3):
+            base.vectors[i][j] = vertices[f[j], :]
+
+    return base
+
+
 def main(filename):
     spectrum = importNMR(filename)
     spectrum.read_file(verbose=True)
