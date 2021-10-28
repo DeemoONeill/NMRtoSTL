@@ -1,0 +1,28 @@
+##TITLE= Parameter file, TopSpin 3.6.2
+##JCAMPDX= 5.0
+##DATATYPE= Parameter Values
+##NPOINTS= 1	$$ modification sequence number
+##ORIGIN= Bruker BioSpin GmbH
+##OWNER= Chemist
+$$ 2020-12-02 14:48:20.472 +0000  Chemist@glj400
+$$ C:\Bruker\TopSpin3.6\data\AH\nmr/Ethyl acetate/2/pdata/1/clevels
+$$ process C:\Bruker\TopSpin3.6\prog\mod\edparproc.exe
+##$LEVELS= (0..255)
+182681.25 240191.81 315807.48 415228 545947.47 717819.22 943798.55 1240919.27
+1631577.67 2145220.68 2820565.56 3708518.25 4876010.63 6411045.6 8429330.62
+11082999.43 14572079.55 19159569.91 25191265.11 33121820.62 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0
+##$LEVSIGN= 1
+##$MAXLEV= 20
+##$METHOD= 0
+##$NEGBASE= -182681.25
+##$NEGINCR= 1.8
+##$POSBASE= 182681.25
+##$POSINCR= 1.8
+##END=
