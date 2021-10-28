@@ -10,55 +10,7 @@ from stl import mesh
 import nmrglue as ng
 from stl.stl import ASCII
 
-'''
-class Bruker2D:
-    ROWS_RE = re.compile(r"NROWS = (\d+)")
-    COLS_RE = re.compile(r"NCOLS = (\d+)")
-    XY_RE = re.compile(r"F[12][\w]{4,5} = ([-\d.]+)")
 
-    def __init__(self, filename:str) -> None:
-        self.filename = filename
-
-    def _get_consts(self, file: FileIO):
-        # read the head of the file to find the number of rows, columns and
-        # the limits of the X and Y axes
-        header = file.read(600)
-        file.seek(0)
-        #find rows and columns
-        self.NROWS = int(re.findall(self.ROWS_RE, header)[0])
-        self.NCOLS = int(re.findall(self.COLS_RE, header)[0])
-        #find axis limits
-        self.xmax, self.xmin, self.ymax, self.ymin = [float(value) for value in re.findall(self.XY_RE, header)]
-
-    def read_file(self, verbose = False):
-        if verbose:
-            print("Reading Data")
-        # reads data and constants from the text file
-        self.data = []
-        with open(self.filename, "r") as f:
-            self._get_consts(f)
-            for line in f:
-                if line.startswith("#"):
-                    continue
-                else:
-                    row = [float(line)] + [float(f.readline().strip()) for _ in range(self.NCOLS-1)]
-                    self.data.append(row)
-        self.data = np.array(self.data)
-
-    def process(self, max_height=1):
-        x = np.linspace(self.xmax, self.xmin, num=self.NCOLS)
-        y = np.linspace(self.ymax, self.ymin, num=self.NROWS)
-
-        # expands x and y to the same s
-        x, y = np.meshgrid(x, y)
-        z = self.data.flatten()
-        # normalise z data
-        z = (z/z.max()) * max_height
-        x = x.flatten()
-        y = y.flatten()
-        return x,y,z
-'''    
-    
 class importNMR:
     def __init__(self, filename: str) -> None:
         self.filename = filename
