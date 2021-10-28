@@ -1,0 +1,23 @@
+##TITLE= Parameter file, TopSpin 3.6.2
+##JCAMPDX= 5.0
+##DATATYPE= Parameter Values
+##NPOINTS= 1	$$ modification sequence number
+##ORIGIN= Bruker BioSpin GmbH
+##OWNER= Chemist
+$$ 2020-12-02 14:48:20.425 +0000  Chemist@glj400
+$$ C:\Bruker\TopSpin3.6\data\AH\nmr/Ethyl acetate/2/acqu2
+$$ process C:\Bruker\TopSpin3.6\prog\mod\edparproc.exe
+##$ACQT0= 0
+##$BF1= 400.2
+##$FnMODE= 1
+##$NUC1= <1H>
+##$NusJSP= 0
+##$NusT2= 1
+##$NusTD= 0
+##$O1= 1581.776
+##$ProjAngle= 0
+##$SFO1= 400.201581776
+##$SW= 9.99496299402153
+##$SW_h= 4000
+##$TD= 512
+##END=

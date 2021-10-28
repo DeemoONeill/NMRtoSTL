@@ -1,0 +1,18 @@
+##TITLE= Audit trail, TopSpin 3.6.2
+##JCAMPDX= 5.01
+##ORIGIN= Bruker BioSpin GmbH
+##OWNER= Chemist
+$$ C:/Bruker/TopSpin3.6/data/AH/nmr/Ethyl acetate/2/audita.txt
+##AUDIT TRAIL=  $$ (NUMBER, WHEN, WHO, WHERE, PROCESS, VERSION, WHAT)
+(   1,<2020-12-02 15:04:46.721 +0000>,<Chemist>,<glj400>,<go4>,<TopSpin 3.6.2>,
+      <created by zg
+	started at 2020-12-02 14:48:52.683 +0000,
+	POWCHK enabled, PULCHK disabled,
+       configuration hash MD5:
+       E1 C4 AB E9 F3 AD 36 AF 8A EC 09 36 E7 EC 09 21
+       data hash MD5: 2K * 512
+       6E 01 33 67 FD F9 9E 2D 10 BF 18 38 75 B8 4C 60>)
+##END=
+
+$$ hash MD5
+$$ 6F B9 EE 70 89 38 7F BF 47 29 1C 33 1A 38 85 29
