@@ -3,16 +3,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import nmrglue as ng
+import warnings
 
 
 class importNMR:
     def __init__(self, filename: str) -> None:
         self.filename = filename
 
-    def read_file(self, verbose=False):
+    def read_file(self, verbose=False, stack=-1):
         """
         Import 2D NMR data from file.
         Allowed data types are:
+            - Bruker 1D processed data (1r) [minimum 3 spectra]
             - Bruker 2D processed data (2rr)
             - NMRpipe 2D processed data (.ft2)
 
@@ -21,6 +23,11 @@ class importNMR:
         verbose : bool, optional
             If true, additional information will be displayed.
             The default is False.
+        stack : int, optional
+            The number of 1D spectra to stack. 
+            Files will be read sequentially and must be in the same folder.
+            If the value is < 3 then stacking will be skipped.
+            The default is -1.
 
         Raises
         ------
@@ -43,7 +50,38 @@ class importNMR:
         ]
         for fun in import_functions:
             try:
+                # read in first spectrum
                 self.data, self.udic = fun(self.filename, verbose)
+                
+                # stack 1D data if required
+                if stack > 2:
+                    self.data=np.resize(self.data, (stack,self.udic[0]['size']))
+                    
+                    # set the parameters for the second dimension
+                    self.udic["ndim"] = 2
+                    self.udic[1]=self.udic[0]
+                    self.udic[0]={'sw' : 999.99,
+                                  'complex' : False,
+                                  'obs' : 999.99,
+                                  'car' : 999.99,
+                                  'size' : stack,
+                                  'label' : 'time',
+                                  'encoding' : 'states',
+                                  'time' : True,
+                                  'freq' : False
+                                  }
+                    
+                    # add rest of 1D spectra to stack
+                    for n in range(stack-1):
+                        # increment file name
+                        fsplit = self.filename.rpartition("\\")
+                        filename = fsplit[0] + "\\" + str(int(fsplit[-1])+n+1)
+                        # import data
+                        data2, udic2 = fun(filename, verbose=False)
+                        if udic2[0]['size'] != self.udic[1]['size']:
+                            warnings.warn("Size of spectra does not match! ")
+                        else:
+                            self.data[n+1] = data2
                 break
             except:
                 pass
@@ -53,11 +91,15 @@ class importNMR:
         # make sure that the data is 2D
         if self.udic["ndim"] != 2:
             raise ValueError("Data must be 2D!")
-
-        # make sure the the data is frequency domain
-        if self.udic[0]["freq"] == False or self.udic[1]["freq"] == False:
+            
+        # make sure the data is frequency domain
+        if self.udic[0]["freq"] == False:
+            warnings.warn(
+                "Time domain data detected in F1 dimension. "
+            )
+        if self.udic[1]["freq"] == False:
             raise ValueError(
-                "Data must be frequency domain! "
+                "Data must be frequency domain in F2 dimension! "
                 "Perform a Fourier transform before processing."
             )
 
@@ -104,8 +146,7 @@ class importNMR:
         limits_pts = []
         for n, limit in enumerate(limits_ppm):
             if limit == None:
-                limit = defaults[n]
-                limits_ppm[n] = limit
+                limits_ppm[n] = defaults[n]
 
         # convert limits from ppm to points
         limits_pts.append(uc_f1.i(limits_ppm[0], "PPM"))
@@ -131,7 +172,7 @@ class importNMR:
         Parameters
         ----------
         filename : str
-            File path for processed data directory '...\pdata\1'
+            File path for folder containing processed data directory '...\pdata\1'
         verbose : bool, optional
             If true, additional information will be displayed.
             The default is False.
@@ -145,16 +186,19 @@ class importNMR:
 
         """
         # read the processed data as numpy array
-        dic, data = ng.bruker.read_pdata(filename)
+        dic, data = ng.bruker.read_pdata(filename + r'\pdata\1')
 
         # create a dictionary containing the experiment parameters
         udic = ng.bruker.guess_udic(dic, data, strip_fake=True)
 
         # fix the time/frequency axis in the dictionary
-        udic[0]["time"], udic[1]["time"] = False, False
-        udic[0]["freq"], udic[1]["freq"] = True, True
+        for dim in range(udic['ndim']):
+            if udic[dim]['encoding'] == 'direct':
+                udic[dim]["time"] = False
+                udic[dim]["freq"] = True
+            
         if verbose:
-            print("Bruker frequency data found")
+            print("Bruker processed data found")
         return data, udic
 
     def read_pipe(self, filename, verbose=False):
@@ -223,20 +267,25 @@ class importNMR:
         cl = contour_start * contour_factor ** np.arange(contour_num)
 
         # plot the data
+        xlim = limits[2:4]
+        ylim = limits[0:2]
+        if self.udic[0]['time'] == True:
+            ylim = ylim[::-1]
         plt.figure()
         plt.contour(
             self.data,
             cl,
             cmap=cmap,
-            extent=limits,
+            extent=(xlim + ylim),
         )
-        plt.gca().invert_yaxis()
+        if self.udic[0]['freq'] == True:
+            plt.gca().invert_yaxis()
         plt.gca().invert_xaxis()
         plt.show()
 
     def process(self, max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
         # expands x and y to the same s
-        x, y = np.meshgrid(self.ppm_f1, self.ppm_f2)
+        x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
         z = self.data.flatten()[::2]
         # normalise z data
         z = (z / z.max()) * max_height

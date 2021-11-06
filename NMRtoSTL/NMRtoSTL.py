@@ -90,7 +90,7 @@ def create_base(
 
 def main(filename):
     spectrum = importNMR.importNMR(filename)
-    spectrum.read_file(verbose=True)
+    spectrum.read_file(verbose=True, stack=-1)
     spectrum.make_scales(verbose=True, 
                          f1_min=1.0, f1_max=4.5, f2_min=1.0, f2_max=4.5)
     x, y, z = spectrum.process()
@@ -108,5 +108,5 @@ if __name__ == "__main__":
     try:
         filename = sys.argv[1]
     except:
-        filename = r"..\Example_data\Bruker_COSY\pdata\1"
+        filename = r"..\Example_data\Bruker_COSY"
     main(filename)
