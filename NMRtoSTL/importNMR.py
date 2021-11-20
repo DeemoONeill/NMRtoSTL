@@ -323,30 +323,38 @@ class importNMR:
         plt.gca().invert_xaxis()
         plt.show()
 
-    def process(self, sigma=[0,0], max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
+    def process(self, 
+                sigma=[0,0], 
+                threshold=0.0, 
+                max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
         """
         Process NMR data ready for conversion to mesh.
 
         Parameters
         ----------
-        sigma : pair of floats, optional
+        sigma : pair of ints, optional
             Sigma values for x and y axis to use for gaussian smoothing of peaks. 
             The default is [0,0].
+        threshold : float, optional
+            Threshold to remove noise from baseline as a percentage of the 
+            height of the tallest peak. The default is 0.
         max_height : int, optional
             Maximum height for peak scaling. The default is 1.
 
         Returns
         -------
-        x : TYPE
-            DESCRIPTION.
-        y : TYPE
-            DESCRIPTION.
-        z : TYPE
-            DESCRIPTION.
+        x : Numpy NDarray
+            x axis data
+        y : Numpy NDarray
+            y axis data
+        z : Numpy NDarray
+            z axis data
 
         """
         # smooth z data to remove sharp peaks that won't print
         z = gaussian_filter(self.data, sigma, mode='constant')
+        # remove values below noise threshold
+        z[z < threshold*z.max()] = 0
         # expands x and y to the same s
         x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
         z = z.flatten()[::2]
