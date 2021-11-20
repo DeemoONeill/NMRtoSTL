@@ -17,6 +17,7 @@ class importNMR:
             - Bruker 1D processed data (1r) [minimum 3 spectra]
             - Bruker 2D processed data (2rr)
             - NMRpipe 2D processed data (.ft2)
+            - Agilent/Varian 2D data (fid)
 
         Parameters
         ----------
@@ -45,8 +46,8 @@ class importNMR:
         # read data and constants from the text file
         import_functions = [
             self.read_Bruker_proc,
-            self.read_pipe
-            # self.read_Varian
+            self.read_pipe,
+            self.read_Varian,
         ]
         for fun in import_functions:
             try:
@@ -55,7 +56,9 @@ class importNMR:
                 
                 # stack 1D data if required
                 if stack > 2:
-                    self.data=np.resize(self.data, (stack,self.udic[0]['size']))
+                    self.data=np.resize(self.data, 
+                                        (stack,self.udic[0]['size'])
+                    )
                     
                     # set the parameters for the second dimension
                     self.udic["ndim"] = 2
@@ -172,7 +175,8 @@ class importNMR:
         Parameters
         ----------
         filename : str
-            File path for folder containing processed data directory '...\pdata\1'
+            File path for folder containing processed data 
+            directory '...\pdata\1'
         verbose : bool, optional
             If true, additional information will be displayed.
             The default is False.
@@ -193,7 +197,7 @@ class importNMR:
 
         # fix the time/frequency axis in the dictionary
         for dim in range(udic['ndim']):
-            if udic[dim]['encoding'] == 'direct':
+            if udic[dim]['encoding'] != 'states':
                 udic[dim]["time"] = False
                 udic[dim]["freq"] = True
             
@@ -231,18 +235,53 @@ class importNMR:
             print("NMRpipe data found")
         return data, udic
 
-    """
     def read_Varian(self, filename, verbose=False):
-        # read the data as numpy array
-        dic, data = ng.varian.read(filename)
+        """
+        Import and process Varian/Agilent data.
 
+        Parameters
+        ----------
+        filename : str
+            File path for Varian/Agilent data file '.fid'
+        verbose : bool, optional
+            If true, additional information will be displayed.
+            The default is False.
+
+        Returns
+        -------
+        data : numpy array
+            2D NMR data array
+        udic : dict
+            Dictionary containing experimental parameters
+
+        """
+        # read the data as numpy array
+        dic, data = ng.varian.read(filename)    
+         
+        # Fourier transform and phasing
+        data = ng.proc_base.rft(data)
+        data = ng.proc_base.tp_hyper(data)
+        data = ng.proc_base.fft(data)
+        data = ng.proc_base.tp(data)
+        #data = ng.process.proc_autophase.autops(data, fn='acme')    
+        data = ng.proc_base.di(data)
+        
         # create a dictionary containing the experiment parameters
         udic = ng.varian.guess_udic(dic, data)
-
+        udic[0]['sw'] = float(dic['procpar']['sw1']['values'][0])
+        udic[0]['obs'] =float(dic['procpar']['dfrq']['values'][0])
+        udic[0]['car'] = -float(dic['procpar']['rfl1']['values'][0]) + udic[0]['sw']/2
+        udic[1]['sw'] = float(dic['procpar']['sw']['values'][0])
+        udic[1]['obs'] = float(dic['procpar']['sfrq']['values'][0])
+        udic[1]['car'] = -float(dic['procpar']['rfl']['values'][0]) + udic[1]['sw']/2
+        udic[0]["time"] = False
+        udic[0]["freq"] = True
+        udic[1]["time"] = False
+        udic[1]["freq"] = True
+        
         if verbose:
             print('Varian/Agilent data found')
         return data, udic
-    """
 
     def plot(self, limits):
         """
@@ -260,8 +299,8 @@ class importNMR:
 
         """
         # calculate contour levels
-        cmap = matplotlib.cm.Blues_r  # contour map (colors to use for contours)
-        contour_start = 85000  # contour level start value
+        cmap = matplotlib.cm.bwr  # contour map (colors to use for contours)
+        contour_start = 1000000  # contour level start value
         contour_num = 25  # number of contour levels
         contour_factor = 1.30  # scaling factor between contour levels
         cl = contour_start * contour_factor ** np.arange(contour_num)
