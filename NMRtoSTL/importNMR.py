@@ -10,7 +10,7 @@ class importNMR:
     def __init__(self, filename: str) -> None:
         self.filename = filename
 
-    def read_file(self, verbose=False, stack=-1):
+    def read_file(self, stack=-1, verbose=False):
         """
         Import 2D NMR data from file.
         Allowed data types are:
@@ -107,7 +107,7 @@ class importNMR:
             )
 
     def make_scales(
-        self, verbose=False, f1_min=None, f1_max=None, f2_min=None, f2_max=None
+        self, f1_min=None, f1_max=None, f2_min=None, f2_max=None, verbose=False
     ):
         """
         Creates scales for the X and Y axes in units of ppm.
@@ -300,8 +300,8 @@ class importNMR:
         """
         # calculate contour levels
         cmap = matplotlib.cm.bwr  # contour map (colors to use for contours)
-        contour_start = 1000000  # contour level start value
         contour_num = 25  # number of contour levels
+        contour_start = np.amax(self.data)/contour_num  # contour level start value
         contour_factor = 1.30  # scaling factor between contour levels
         cl = contour_start * contour_factor ** np.arange(contour_num)
 
