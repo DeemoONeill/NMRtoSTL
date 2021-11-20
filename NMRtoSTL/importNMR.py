@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import nmrglue as ng
 import warnings
+from scipy.ndimage import gaussian_filter
 
 
 class importNMR:
@@ -322,10 +323,33 @@ class importNMR:
         plt.gca().invert_xaxis()
         plt.show()
 
-    def process(self, max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
+    def process(self, sigma=[0,0], max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Process NMR data ready for conversion to mesh.
+
+        Parameters
+        ----------
+        sigma : pair of floats, optional
+            Sigma values for x and y axis to use for gaussian smoothing of peaks. 
+            The default is [0,0].
+        max_height : int, optional
+            Maximum height for peak scaling. The default is 1.
+
+        Returns
+        -------
+        x : TYPE
+            DESCRIPTION.
+        y : TYPE
+            DESCRIPTION.
+        z : TYPE
+            DESCRIPTION.
+
+        """
+        # smooth z data to remove sharp peaks that won't print
+        z = gaussian_filter(self.data, sigma, mode='constant')
         # expands x and y to the same s
         x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
-        z = self.data.flatten()[::2]
+        z = z.flatten()[::2]
         # normalise z data
         z = (z / z.max()) * max_height
         x = x.flatten()[::2]

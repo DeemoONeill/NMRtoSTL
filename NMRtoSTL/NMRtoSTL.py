@@ -92,7 +92,7 @@ def main(filename, f1_min, f1_max, f2_min, f2_max, stack):
     spectrum = importNMR.importNMR(filename)
     spectrum.read_file(stack=stack, verbose=True)
     spectrum.make_scales(f1_min, f1_max, f2_min, f2_max, verbose=True)
-    x, y, z = spectrum.process(max_height=2)
+    x, y, z = spectrum.process(sigma=[3,2], max_height=2)
     NMR_mesh = create_mesh(x, y, z, verbose=True)
     base = create_base(x, y, z, thickness=0.2)
     combined = mesh.Mesh(np.concatenate([NMR_mesh.data, base.data]))
