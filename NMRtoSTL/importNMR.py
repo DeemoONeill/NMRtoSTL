@@ -355,6 +355,9 @@ class importNMR:
         z = gaussian_filter(self.data, sigma, mode='constant')
         # remove values below noise threshold
         z[z < threshold*z.max()] = 0
+        # set first and last row to zero - fixes issue with hollow mesh
+        z[0] = np.zeros(len(z[0]))
+        z[-1] = np.zeros(len(z[-1]))
         # expands x and y to the same s
         x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
         z = z.flatten()[::2]

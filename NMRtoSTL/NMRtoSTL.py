@@ -92,7 +92,7 @@ def main(filename, f1_min, f1_max, f2_min, f2_max, stack):
     spectrum = importNMR.importNMR(filename)
     spectrum.read_file(stack=stack, verbose=True)
     spectrum.make_scales(f1_min, f1_max, f2_min, f2_max, verbose=True)
-    x, y, z = spectrum.process(sigma=[3,2], max_height=2)
+    x, y, z = spectrum.process(sigma=[3,5], threshold=0.01, max_height=2)
     NMR_mesh = create_mesh(x, y, z, verbose=True)
     base = create_base(x, y, z, thickness=0.2)
     combined = mesh.Mesh(np.concatenate([NMR_mesh.data, base.data]))
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     try:
         filename = sys.argv[1]
     except:
-        filename = r"..\Example_data\Bruker_COSY"      
-    main(filename, f1_min=1, f1_max=4.5, f2_min=1, f2_max=4.5, stack=-1)
+        filename = r"..\Example_data\Bruker_1D_kinetics"      
+    main(filename, f1_min=None, f1_max=None, f2_min=-6, f2_max=-5, stack=200)
