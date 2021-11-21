@@ -326,7 +326,7 @@ class importNMR:
     def process(self, 
                 sigma=[0,0], 
                 threshold=0.0, 
-                max_height: int = 1) -> [np.ndarray, np.ndarray, np.ndarray]:
+                size=[5,5,5]) -> [np.ndarray, np.ndarray, np.ndarray]:
         """
         Process NMR data ready for conversion to mesh.
 
@@ -337,9 +337,10 @@ class importNMR:
             The default is [0,0].
         threshold : float, optional
             Threshold to remove noise from baseline as a percentage of the 
-            height of the tallest peak. The default is 0.
-        max_height : int, optional
-            Maximum height for peak scaling. The default is 1.
+            height of the tallest peak. The default is 0%.
+        size : list of int, optional
+            X, Y and Z dimensions of final mesh (in mm).
+            The default is [5, 5, 5].
 
         Returns
         -------
@@ -351,18 +352,20 @@ class importNMR:
             z axis data
 
         """
-        # smooth z data to remove sharp peaks that won't print
+        # smooth z data to remove sharp peaks that won't prin
         z = gaussian_filter(self.data, sigma, mode='constant')
         # remove values below noise threshold
         z[z < threshold*z.max()] = 0
-        # set first and last row to zero - fixes issue with hollow mesh
+        # set first and last row to zero - fixes issue with holes in mesh
         z[0] = np.zeros(len(z[0]))
         z[-1] = np.zeros(len(z[-1]))
-        # expands x and y to the same s
+        # expands x and y to the same size
         x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
         z = z.flatten()[::2]
         # normalise z data
-        z = (z / z.max()) * max_height
+        z = (z / z.max()) * size[2]
         x = x.flatten()[::2]
+        x = (x / (x.max()-x.min()) * size[0])
         y = y.flatten()[::2]
+        y = (y / (y.max()-y.min()) * size[1])
         return x, y, z
