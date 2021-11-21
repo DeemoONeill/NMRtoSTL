@@ -68,8 +68,8 @@ def create_base(
             [1, 3, 2],
             [0, 4, 7],
             [0, 7, 3],
-            [4, 5, 6],
-            [4, 6, 7],
+            #[4, 5, 6],  # The top surface is not required as this will be
+            #[4, 6, 7],  # filled with the NMR data.
             [5, 1, 2],
             [5, 2, 6],
             [2, 3, 6],
@@ -88,18 +88,19 @@ def create_base(
     return base
 
 
-def main(filename):
+def main(filename, f1_min, f1_max, f2_min, f2_max, stack):
     spectrum = importNMR.importNMR(filename)
-    spectrum.read_file(verbose=True)
-    spectrum.make_scales(verbose=True, 
-                         f1_min=1.0, f1_max=4.5, f2_min=1.0, f2_max=4.5)
-    x, y, z = spectrum.process()
+    spectrum.read_file(stack=stack, verbose=True)
+    spectrum.make_scales(f1_min, f1_max, f2_min, f2_max, verbose=True)
+    x, y, z = spectrum.process(sigma=[1,10], threshold=0, size=[10,10,6])
     NMR_mesh = create_mesh(x, y, z, verbose=True)
+    base = create_base(x, y, z, thickness=0.5)
+    combined = mesh.Mesh(np.concatenate([NMR_mesh.data, base.data]))
     _, file = os.path.split(filename)
     file, _ = os.path.splitext(file)
     filename = f"./{file}.stl"
     print(f"Saving file as: '{filename[2:]}'")
-    NMR_mesh.save(filename)
+    combined.save(filename)
 
 
 if __name__ == "__main__":
@@ -108,5 +109,5 @@ if __name__ == "__main__":
     try:
         filename = sys.argv[1]
     except:
-        filename = r"..\Example_data\Bruker_COSY\pdata\1"
-    main(filename)
+        filename = r"..\Example_data\Bruker_1D_kinetics\10"
+    main(filename, f1_min=None, f1_max=None, f2_min=-6, f2_max=-5, stack=200)
