@@ -9,7 +9,13 @@ import re
 from stl import mesh
 import nmrglue as ng
 from stl.stl import ASCII
-import importNMR
+
+# for some reason without this the python -m version of the script
+# doesn't play nicely with the imports
+try:
+    from . import importNMR
+except ImportError:
+    from importNMR import importNMR
 
 
 def create_mesh(
@@ -68,8 +74,8 @@ def create_base(
             [1, 3, 2],
             [0, 4, 7],
             [0, 7, 3],
-            #[4, 5, 6],  # The top surface is not required as this will be
-            #[4, 6, 7],  # filled with the NMR data.
+            # [4, 5, 6],  # The top surface is not required as this will be
+            # [4, 6, 7],  # filled with the NMR data.
             [5, 1, 2],
             [5, 2, 6],
             [2, 3, 6],
@@ -88,19 +94,38 @@ def create_base(
     return base
 
 
-def main(filename, f1_min, f1_max, f2_min, f2_max, stack):
-    spectrum = importNMR.importNMR(filename)
-    spectrum.read_file(stack=stack, verbose=True)
-    spectrum.make_scales(f1_min, f1_max, f2_min, f2_max, verbose=True)
-    x, y, z = spectrum.process(sigma=[1,10], threshold=0, size=[10,10,6])
-    NMR_mesh = create_mesh(x, y, z, verbose=True)
-    base = create_base(x, y, z, thickness=0.5)
+def main(
+    filename,
+    f1_min,
+    f1_max,
+    f2_min,
+    f2_max,
+    stack,
+    outfile=None,
+    thickness=0.5,
+    process_args={"sigma": [1, 10], "size": [10, 10, 6], "threshold": 0},
+    verbose=True,
+):
+    """
+    Main function
+    parses and scales the NMR files, processes the spectra then creates a data
+    mesh and a base mesh, which are concatenated together. This is then saved
+    as an STL file.
+    """
+    if not outfile:
+        _, file = os.path.split(filename)
+        file, _ = os.path.splitext(file)
+        outfile = f"./{outfile}.stl"
+
+    spectrum = importNMR(filename)
+    spectrum.read_file(stack=stack, verbose=verbose)
+    spectrum.make_scales(f1_min, f1_max, f2_min, f2_max, verbose=verbose)
+    x, y, z = spectrum.process(**process_args)
+    NMR_mesh = create_mesh(x, y, z, verbose=verbose)
+    base = create_base(x, y, z, thickness)
     combined = mesh.Mesh(np.concatenate([NMR_mesh.data, base.data]))
-    _, file = os.path.split(filename)
-    file, _ = os.path.splitext(file)
-    filename = f"./{file}.stl"
     print(f"Saving file as: '{filename[2:]}'")
-    combined.save(filename)
+    combined.save(outfile)
 
 
 if __name__ == "__main__":
@@ -110,4 +135,5 @@ if __name__ == "__main__":
         filename = sys.argv[1]
     except:
         filename = r"..\Example_data\Bruker_1D_kinetics\10"
+
     main(filename, f1_min=None, f1_max=None, f2_min=-6, f2_max=-5, stack=200)
