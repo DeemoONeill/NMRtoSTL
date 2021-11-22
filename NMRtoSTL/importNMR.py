@@ -26,7 +26,7 @@ class importNMR:
             If true, additional information will be displayed.
             The default is False.
         stack : int, optional
-            The number of 1D spectra to stack. 
+            The number of 1D spectra to stack.
             Files will be read sequentially and must be in the same folder.
             If the value is < 3 then stacking will be skipped.
             The default is -1.
@@ -54,13 +54,13 @@ class importNMR:
             try:
                 # read in first spectrum
                 self.data, self.udic = fun(self.filename, verbose)
-                
+
                 # stack 1D data if required
                 if stack > 2:
-                    self.data=np.resize(self.data, 
+                    self.data=np.resize(self.data,
                                         (stack,self.udic[0]['size'])
                     )
-                    
+
                     # set the parameters for the second dimension
                     self.udic["ndim"] = 2
                     self.udic[1]=self.udic[0]
@@ -74,7 +74,7 @@ class importNMR:
                                   'time' : True,
                                   'freq' : False
                                   }
-                    
+
                     # add rest of 1D spectra to stack
                     for n in range(stack-1):
                         # increment file name
@@ -95,7 +95,7 @@ class importNMR:
         # make sure that the data is 2D
         if self.udic["ndim"] != 2:
             raise ValueError("Data must be 2D!")
-            
+
         # make sure the data is frequency domain
         if self.udic[0]["freq"] == False:
             warnings.warn(
@@ -176,7 +176,7 @@ class importNMR:
         Parameters
         ----------
         filename : str
-            File path for folder containing processed data 
+            File path for folder containing processed data
             directory '...\pdata\1'
         verbose : bool, optional
             If true, additional information will be displayed.
@@ -201,7 +201,7 @@ class importNMR:
             if udic[dim]['encoding'] != 'states':
                 udic[dim]["time"] = False
                 udic[dim]["freq"] = True
-            
+
         if verbose:
             print("Bruker processed data found")
         return data, udic
@@ -257,16 +257,16 @@ class importNMR:
 
         """
         # read the data as numpy array
-        dic, data = ng.varian.read(filename)    
-         
+        dic, data = ng.varian.read(filename)
+
         # Fourier transform and phasing
         data = ng.proc_base.rft(data)
         data = ng.proc_base.tp_hyper(data)
         data = ng.proc_base.fft(data)
         data = ng.proc_base.tp(data)
-        #data = ng.process.proc_autophase.autops(data, fn='acme')    
+        #data = ng.process.proc_autophase.autops(data, fn='acme')
         data = ng.proc_base.di(data)
-        
+
         # create a dictionary containing the experiment parameters
         udic = ng.varian.guess_udic(dic, data)
         udic[0]['sw'] = float(dic['procpar']['sw1']['values'][0])
@@ -279,7 +279,7 @@ class importNMR:
         udic[0]["freq"] = True
         udic[1]["time"] = False
         udic[1]["freq"] = True
-        
+
         if verbose:
             print('Varian/Agilent data found')
         return data, udic
@@ -323,20 +323,20 @@ class importNMR:
         plt.gca().invert_xaxis()
         plt.show()
 
-    def process(self, 
-                sigma=[0,0], 
-                threshold=0.0, 
-                size=[5,5,5]) -> [np.ndarray, np.ndarray, np.ndarray]:
+    def process(self,
+                sigma=[0,0],
+                threshold=0.0,
+                size=[5,5,5]) -> list[np.ndarray, np.ndarray, np.ndarray]:
         """
         Process NMR data ready for conversion to mesh.
 
         Parameters
         ----------
         sigma : pair of ints, optional
-            Sigma values for x and y axis to use for gaussian smoothing of peaks. 
+            Sigma values for x and y axis to use for gaussian smoothing of peaks.
             The default is [0,0].
         threshold : float, optional
-            Threshold to remove noise from baseline as a percentage of the 
+            Threshold to remove noise from baseline as a percentage of the
             height of the tallest peak. The default is 0%.
         size : list of int, optional
             X, Y and Z dimensions of final mesh (in mm).
