@@ -164,6 +164,11 @@ class importNMR:
         self.data = self.data[
             limits_pts[0] : limits_pts[1], limits_pts[2] : limits_pts[3]
         ]
+        npoints = 5000
+        self.data = ng.proc_base.coadd(self.data, np.ones(len(self.data[0])//npoints+1), axis=1)
+        self.data = ng.proc_base.coadd(self.data, np.ones(len(self.data)//npoints+1), axis=0)
+        self.ppm_f1 = ng.proc_base.coadd(self.ppm_f1, np.ones(len(self.ppm_f1)//npoints+1))
+        self.ppm_f2 = ng.proc_base.coadd(self.ppm_f2, np.ones(len(self.ppm_f2)//npoints+1))
 
         if verbose:
             print("Plotting data")
@@ -352,7 +357,7 @@ class importNMR:
             z axis data
 
         """
-        # smooth z data to remove sharp peaks that won't prin
+        # smooth z data to remove sharp peaks that won't print
         z = gaussian_filter(self.data, sigma, mode='constant')
         # remove values below noise threshold
         z[z < threshold*z.max()] = 0
