@@ -134,6 +134,6 @@ if __name__ == "__main__":
     try:
         filename = sys.argv[1]
     except:
-        filename = r"..\Example_data\Bruker_1D_kinetics\10"
+        filename = r"..\Example_data\Bruker_COSY"
 
-    main(filename, f1_min=None, f1_max=None, f2_min=-6, f2_max=-5, stack=200)
+    main(filename, f1_max=None, f1_min=None, f2_max=None, f2_min=None, stack=-1)
