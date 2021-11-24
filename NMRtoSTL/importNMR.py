@@ -164,6 +164,11 @@ class importNMR:
         self.data = self.data[
             limits_pts[0] : limits_pts[1], limits_pts[2] : limits_pts[3]
         ]
+        npoints = 5000
+        self.data = ng.proc_base.coadd(self.data, np.ones(len(self.data[0])//npoints+1), axis=1)
+        self.data = ng.proc_base.coadd(self.data, np.ones(len(self.data)//npoints+1), axis=0)
+        self.ppm_f1 = ng.proc_base.coadd(self.ppm_f1, np.ones(len(self.ppm_f1)//npoints+1))
+        self.ppm_f2 = ng.proc_base.coadd(self.ppm_f2, np.ones(len(self.ppm_f2)//npoints+1))
 
         if verbose:
             print("Plotting data")
@@ -352,20 +357,15 @@ class importNMR:
             z axis data
 
         """
-        # reduce the number of points to 2048 in each dimension
-        reduced_x_data = ng.proc_base.coadd(self.data, np.ones(self.udic[1]['size']//2048+1), axis=1)
-        f2_scale = ng.proc_base.coadd(self.ppm_f2, np.ones(self.udic[1]['size']//2048+1))
-        reduced_xy_data = ng.proc_base.coadd(reduced_x_data, np.ones(self.udic[0]['size']//2048+1), axis=0)
-        f1_scale = ng.proc_base.coadd(self.ppm_f1, np.ones(self.udic[0]['size']//2048+1))
         # smooth z data to remove sharp peaks that won't print
-        z = gaussian_filter(reduced_xy_data, sigma, mode='constant')
+        z = gaussian_filter(self.data, sigma, mode='constant')
         # remove values below noise threshold
         z[z < threshold*z.max()] = 0
         # set first and last row to zero - fixes issue with holes in mesh
         z[0] = np.zeros(len(z[0]))
         z[-1] = np.zeros(len(z[-1]))
         # expands x and y to the same size
-        x, y = np.meshgrid(f2_scale, f1_scale)
+        x, y = np.meshgrid(self.ppm_f2, self.ppm_f1)
         z = z.flatten()[::2]
         # normalise z data
         z = (z / z.max()) * size[2]
