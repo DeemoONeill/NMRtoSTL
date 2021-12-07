@@ -53,8 +53,8 @@ thickness, smoothing and min,max values for both axes. Example:
   default is (5, 5, 5).
 - -t, --thickness FLOAT Thickness of the base (in mm)
 - -T, --threshold FLOAT Threshold to remove noise from baseline as a
-  percentage of the height of the tallest peak. The
-  default is 0%.
+  fraction of the height of the tallest peak. The
+  default is 0.
 - -v, --verbose
 - --help Show these options
 
@@ -62,7 +62,7 @@ thickness, smoothing and min,max values for both axes. Example:
 
 - [x] X and Y limits
 - [ ] read from generic files (in progress)
-- [ ] reduce number of mesh points
+- [x] reduce number of mesh points
 - [x] add arguments for limits, size, stacking, smoothing and threshold to command line input
 
 # Known issues
