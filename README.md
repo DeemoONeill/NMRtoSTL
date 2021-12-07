@@ -4,6 +4,10 @@ Converts 2D NMR data to an STL file for 3D printing.
 
 Inspired by https://doi.org/10.1021/acs.jchemed.0c01130 and https://doi.org/10.1002/cmr.a.21470
 
+![](images/3D_model.jpeg) ![](images/3D_print.jpeg)
+
+3d model created with `python -m NMRtoSTL --stack 180 --sigma 1 10 -t 0.5 $NMR_DIRECTORY`
+
 # Installation
 
 Installation can be done using the setup.py by cloning the project:

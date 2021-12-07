@@ -9,7 +9,7 @@ setup(
         "NMRtoSTL/NMRtoSTL",
         "NMRtoSTL/importNMR",
     ],
-    authors=["Matthew O'Neill", "Andrew Hall"],
+    author="Matthew O'Neill",
     author_email="34174223+DeemoONeill@users.noreply.github.com",
     description="""A library and CLI tool for stacked 1d and 2d NMR into STL files for 3D printing""",
     install_requires=[dep for dep in open("requirements.txt").readlines()],
